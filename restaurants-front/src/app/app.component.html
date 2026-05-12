@@ -1,0 +1,7 @@
+<app-navbar (openCart)="cartOpen.set(true)" />
+
+<app-cart-sidebar [open]="cartOpen()" (close)="cartOpen.set(false)" />
+
+<router-outlet />
+
+<app-chatbot />

@@ -1,0 +1,70 @@
+<!-- Backdrop -->
+@if (open()) {
+  <div class="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" (click)="close.emit()"></div>
+}
+
+<!-- Drawer -->
+<aside
+  class="fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-2xl z-50 flex flex-col transition-transform duration-300 overflow-hidden"
+  [class.translate-x-0]="open()"
+  [class.translate-x-full]="!open()"
+>
+  <div class="flex items-center justify-between p-5 border-b">
+    <h2 class="text-xl font-bold">Your Cart 🛒</h2>
+    <button (click)="close.emit()" class="text-gray-400 hover:text-gray-700 text-2xl leading-none">&times;</button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-5 space-y-4">
+    @if (cart.cartItems().length === 0) {
+      <div class="flex flex-col items-center justify-center h-64 text-gray-400">
+        <span class="text-5xl mb-3">🍽️</span>
+        <p class="font-medium">Your cart is empty</p>
+        <p class="text-sm">Add something delicious!</p>
+      </div>
+    }
+
+    @for (item of cart.cartItems(); track item.menuItem.id) {
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-sm truncate">{{ item.menuItem.itemName }}</p>
+          <p class="text-xs text-gray-500">{{ item.restaurantName }}</p>
+          <p class="text-brand-600 font-bold text-sm mt-1">₸{{ (item.menuItem.priceKzt * item.quantity) | number }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            (click)="cart.decrement(item.menuItem.id)"
+            class="w-7 h-7 rounded-full bg-white border border-gray-200 hover:bg-brand-50 font-bold text-gray-600 flex items-center justify-center"
+          >−</button>
+          <span class="w-5 text-center font-semibold text-sm">{{ item.quantity }}</span>
+          <button
+            (click)="cart.add(item.menuItem, item.restaurantName)"
+            class="w-7 h-7 rounded-full bg-brand-500 hover:bg-brand-600 text-white font-bold flex items-center justify-center"
+          >+</button>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (ordered()) {
+    <div class="absolute inset-0 bg-white flex flex-col items-center justify-center gap-4 z-10">
+      <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center text-4xl animate-bounce">✓</div>
+      <p class="text-xl font-bold text-gray-800">Order placed!</p>
+      <p class="text-gray-500 text-sm">Your food is being prepared 🍳</p>
+    </div>
+  }
+
+  @if (cart.cartItems().length > 0) {
+    <div class="p-5 border-t space-y-3">
+      <div class="flex justify-between text-lg font-bold">
+        <span>Total</span>
+        <span>₸{{ cart.totalPrice() | number }}</span>
+      </div>
+      <button
+        class="w-full bg-brand-500 hover:bg-brand-600 text-white py-3 rounded-xl font-semibold transition-colors"
+        (click)="placeOrder()"
+      >
+        Place Order ✓
+      </button>
+    </div>
+  }
+</aside>

@@ -1,0 +1,147 @@
+@if (loading()) {
+  <div class="animate-pulse">
+    <div class="h-72 sm:h-96 bg-gray-200"></div>
+    <div class="max-w-3xl mx-auto px-4 py-6 space-y-3">
+      <div class="h-7 bg-gray-200 rounded-lg w-2/3"></div>
+      <div class="h-4 bg-gray-100 rounded w-1/3"></div>
+      <div class="h-px bg-gray-100 my-4"></div>
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="flex gap-4 py-4 border-b border-gray-100">
+          <div class="flex-1 space-y-2">
+            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-100 rounded w-full"></div>
+            <div class="h-3 bg-gray-100 rounded w-2/3"></div>
+          </div>
+          <div class="w-20 h-16 bg-gray-200 rounded-xl shrink-0"></div>
+        </div>
+      }
+    </div>
+  </div>
+
+} @else if (restaurant()) {
+
+  <!-- ── HERO ── -->
+  <div class="relative h-64 sm:h-80 overflow-hidden">
+    <img
+      [src]="'assets/restaurants/' + restaurant()!.slug + '_cover.jpg'"
+      [alt]="restaurant()!.name"
+      class="w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/40"></div>
+
+    <a routerLink="/"
+       class="absolute top-4 left-4 flex items-center gap-1.5 bg-black/30 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full hover:bg-black/50 transition-colors">
+      ← Back
+    </a>
+
+    <div class="absolute bottom-0 left-0 right-0 px-5 pb-5 flex items-end gap-4">
+      <img
+        [src]="'assets/restaurants/' + restaurant()!.slug + '_logo.jpg'"
+        [alt]="restaurant()!.name"
+        class="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-lg shrink-0"
+        (error)="$any($event.target).style.display='none'"
+      />
+      <div class="min-w-0">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight drop-shadow">
+          {{ restaurant()!.name }}
+        </h1>
+        <div class="flex flex-wrap gap-1.5 mt-1.5">
+          @for (tag of cuisineTags(); track tag) {
+            <span class="text-xs bg-white/20 backdrop-blur-sm text-white px-2.5 py-0.5 rounded-full font-medium">
+              {{ tag }}
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATS BAR ── -->
+  <div class="bg-white border-b shadow-sm">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-4 text-sm overflow-x-auto">
+      <span class="flex items-center gap-1.5 shrink-0">
+        <span class="text-yellow-400 text-base leading-none">★</span>
+        <span class="font-bold text-gray-900">{{ restaurant()!.ratingScore }}</span>
+        <span class="text-gray-400 text-xs">({{ restaurant()!.ratingCount | number }})</span>
+      </span>
+      <span class="w-px h-4 bg-gray-200 shrink-0"></span>
+      <span class="flex items-center gap-1 text-gray-600 shrink-0">
+        <span>🕐</span>{{ restaurant()!.deliveryTimeMin }} min
+      </span>
+      <span class="w-px h-4 bg-gray-200 shrink-0"></span>
+      <span class="text-gray-500 text-xs truncate">📍 {{ restaurant()!.address }}</span>
+    </div>
+  </div>
+
+  <!-- ── CATEGORY TABS ── -->
+  <div class="bg-white border-b sticky top-16 z-20">
+    <div class="max-w-3xl mx-auto px-4 flex gap-2 overflow-x-auto py-3 scrollbar-hide">
+      @for (cat of categories(); track cat) {
+        <button
+          (click)="activeCategory.set(cat)"
+          [class]="activeCategory() === cat
+            ? 'shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold bg-brand-500 text-white shadow-sm transition-all'
+            : 'shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-gray-600 border border-gray-200 hover:border-brand-300 hover:text-brand-600 transition-all'"
+        >{{ cat }}</button>
+      }
+    </div>
+  </div>
+
+  <!-- ── MENU LIST ── -->
+  <main class="max-w-3xl mx-auto px-4 py-6">
+
+    <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+      {{ activeCategory() }}
+    </p>
+
+    <div class="space-y-3">
+      @for (item of filteredItems(); track item.id) {
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+          <div class="flex items-center gap-4 p-4">
+
+            <!-- Emoji tile -->
+            <div
+              class="w-16 h-16 rounded-xl shrink-0 flex items-center justify-center text-3xl select-none"
+              [style.background]="itemGradient(item.itemName)"
+            >{{ categoryEmoji() }}</div>
+
+            <!-- Text -->
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-gray-900 leading-snug">{{ item.itemName }}</p>
+              @if (item.description) {
+                <p class="text-gray-400 text-xs mt-0.5 line-clamp-2 leading-relaxed">{{ item.description }}</p>
+              }
+              <p class="text-brand-600 font-bold mt-1.5 text-sm">₸{{ item.priceKzt | number }}</p>
+            </div>
+
+            <!-- Stepper -->
+            <div class="shrink-0">
+              @if (quantityOf(item.id) === 0) {
+                <button
+                  (click)="addToCart(item)"
+                  [class]="addedItemId() === item.id
+                    ? 'w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center text-lg shadow transition-all'
+                    : 'w-9 h-9 rounded-full bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center text-xl font-light shadow transition-all'"
+                >{{ addedItemId() === item.id ? '✓' : '+' }}</button>
+              } @else {
+                <div class="flex items-center gap-2">
+                  <button
+                    (click)="removeOne(item)"
+                    class="w-8 h-8 rounded-full border-2 border-brand-400 text-brand-600 flex items-center justify-center font-bold text-lg hover:bg-brand-50 transition-colors"
+                  >−</button>
+                  <span class="w-5 text-center font-bold text-gray-800 text-sm tabular-nums">{{ quantityOf(item.id) }}</span>
+                  <button
+                    (click)="addToCart(item)"
+                    class="w-8 h-8 rounded-full bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center font-bold text-lg transition-colors"
+                  >+</button>
+                </div>
+              }
+            </div>
+
+          </div>
+        </div>
+      }
+    </div>
+
+  </main>
+}

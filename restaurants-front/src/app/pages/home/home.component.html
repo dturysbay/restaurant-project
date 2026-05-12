@@ -1,0 +1,80 @@
+<!-- Hero -->
+<section class="bg-gradient-to-br from-brand-500 to-brand-700 text-white py-14 px-4">
+  <div class="max-w-3xl mx-auto text-center">
+    <h1 class="text-4xl sm:text-5xl font-extrabold mb-3">Order food you love 🍴</h1>
+    <p class="text-brand-100 text-lg">Discover restaurants nearby and get your favourite meal delivered.</p>
+  </div>
+</section>
+
+<!-- Cuisine filters -->
+<section class="bg-white border-b sticky top-16 z-30">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex gap-2 overflow-x-auto scrollbar-hide">
+    @for (c of cuisines; track c.value) {
+      <button
+        (click)="selectCuisine(c.value)"
+        [class]="selectedCuisine() === c.value
+          ? 'shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold bg-brand-500 text-white'
+          : 'shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-brand-50 hover:text-brand-600'"
+      >
+        {{ c.label }}
+      </button>
+    }
+  </div>
+</section>
+
+<!-- Restaurant grid -->
+<main class="max-w-6xl mx-auto px-4 py-8">
+  @if (loading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden animate-pulse">
+          <div class="h-48 bg-gray-200"></div>
+          <div class="p-4 space-y-2">
+            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-100 rounded w-full"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (restaurants().length === 0) {
+    <div class="text-center py-20 text-gray-400">
+      <p class="text-5xl mb-3">🔍</p>
+      <p class="font-semibold text-lg">No restaurants found</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (r of pagedRestaurants(); track r.id) {
+        <app-restaurant-card [restaurant]="r" />
+      }
+    </div>
+  }
+
+  @if (!loading() && totalPages() > 1) {
+    <div class="flex justify-center items-center gap-1 mt-10">
+      <button
+        (click)="page.set(page() - 1)"
+        [disabled]="page() === 1"
+        class="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >‹</button>
+
+      @for (p of pageNumbers(); track $index) {
+        @if (p === '…') {
+          <span class="w-9 h-9 flex items-center justify-center text-gray-400 text-sm">…</span>
+        } @else {
+          <button
+            (click)="goToPage(p)"
+            [class]="p === page()
+              ? 'w-9 h-9 rounded-lg bg-brand-500 text-white font-semibold text-sm transition-colors'
+              : 'w-9 h-9 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm transition-colors'"
+          >{{ p }}</button>
+        }
+      }
+
+      <button
+        (click)="page.set(page() + 1)"
+        [disabled]="page() === totalPages()"
+        class="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      >›</button>
+    </div>
+  }
+</main>

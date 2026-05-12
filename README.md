@@ -19,7 +19,7 @@ A food delivery web app for Almaty restaurants. Browse 100+ local restaurants, f
 
 ## Demo
 
-<video src="restaurant-project.mp4" type="video/mp4" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/f8c9c102-ad44-4791-a5da-fc264cbae37d" type="video/mp4" controls width="100%"></video>
 
 > Full walkthrough: restaurant list, cuisine filters, menu, cart, and AI chatbot.
 

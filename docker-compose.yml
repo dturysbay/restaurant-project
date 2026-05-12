@@ -1,0 +1,61 @@
+services:
+
+  # ── PostgreSQL ────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: foodhub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-restaurants}
+      POSTGRES_USER:     ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-restaurants}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - foodhub-net
+
+  # ── Spring Boot backend ───────────────────────────────────────
+  backend:
+    build:
+      context: ./project-restaurant
+      dockerfile: Dockerfile
+    container_name: foodhub-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL:           jdbc:postgresql://postgres:5432/${POSTGRES_DB:-restaurants}
+      DB_USERNAME:      ${POSTGRES_USER:-postgres}
+      DB_PASSWORD:      ${POSTGRES_PASSWORD:-postgres}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    expose:
+      - "8080"
+    networks:
+      - foodhub-net
+
+  # ── Angular frontend (nginx) ──────────────────────────────────
+  frontend:
+    build:
+      context: ./restaurants-front
+      dockerfile: Dockerfile
+    container_name: foodhub-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    networks:
+      - foodhub-net
+
+volumes:
+  postgres_data:
+
+networks:
+  foodhub-net:
+    driver: bridge

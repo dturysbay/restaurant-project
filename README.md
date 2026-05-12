@@ -6,6 +6,27 @@ A food delivery web app for Almaty restaurants. Browse 100+ local restaurants, f
 
 ---
 
+## Team
+
+| Role | Name |
+|---|---|
+| 🎨 Frontend Developer | Dimash Turysbay |
+| ⚙️ Backend Developer | Olzhas |
+| 🧠 AI Engineer | Akynbek |
+| 🧪 QA Engineer & Workflow Master | Yedige Ashmet |
+
+---
+
+## Demo
+
+https://github.com/user-attachments/assets/restaurant-project.mp4
+
+> Full walkthrough: restaurant list, cuisine filters, menu, cart, and AI chatbot.
+
+[![FoodHub Demo](restaurant-project.mp4)](restaurant-project.mp4)
+
+---
+
 ## Running the project
 
 ### Option A — Docker (recommended)
